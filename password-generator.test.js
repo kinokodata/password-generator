@@ -1,9 +1,46 @@
-const main = require('./main');
+import * as main from './password-generator';
+
+const constrains1 = {
+    min: 8,
+    max: 8,
+    required: {
+        upperCaseLetter: true,
+        lowerCaseLetter: true,
+        alphabetLetter: false,
+        numericDigit: true,
+        alphanumericChar: false
+    },
+    symbols: {
+        chars: '-_',
+        required: true,
+        allowSpace: false
+    }
+};
+
+const constrains2 = {
+    min: 8,
+    max: 8,
+    required: {
+        upperCaseLetter: true,
+        lowerCaseLetter: true,
+        alphabetLetter: false,
+        numericDigit: true,
+        alphanumericChar: false
+    },
+    symbols: {
+        chars: '-_',
+        required: true,
+        allowSpace: false
+    }
+};
 
 test('validate', () => {
-    expect(main.validate('123456a')).toBeFalsy();
-    expect(main.validate('123456ab')).toBeFalsy();
-    expect(main.validate('123456AB')).toBeTruthy();
+    main.setConstrains(constrains1);
+    expect(main.validate('1A3-56a')).toBeFalsy();
+    expect(main.validate('1A3-56ab')).toBeTruthy();
+    expect(main.validate('1A3-56abc')).toBeFalsy();
+    expect(main.validate('1A3-56AB')).toBeFalsy();
+    expect(main.validate('1A3456aB')).toBeFalsy();
 });
 
 test('getRandomUpperCaseLetter', () => {
@@ -31,5 +68,5 @@ test('shuffle', () => {
 });
 
 test('generate', () => {
-    expect(main.validate(main.generate())).toBeTruthy();
+    expect(main.validate(main.generate(constrains1))).toBeTruthy();
 });
