@@ -30,6 +30,7 @@ validate(string, settings)
 
 ```
 const settings = {
+    count: 10,
     min: 8,
     max: 10,
     upperCaseLetters: {
