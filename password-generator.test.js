@@ -47,8 +47,9 @@ test('getRandomSymbol', () => {
 
 test('shuffle', () => {
     const str = 'hogehoge';
-    expect(shuffle(str)).not.toBe(str);
-    expect(shuffle(str).length).toBe(str.length);
+    const shuffled = shuffle(str);
+    expect(shuffled).not.toEqual(str);
+    expect(shuffled.length).toBe(str.length);
 });
 
 test('sub', () => {
@@ -85,7 +86,7 @@ test('validate with default settings', () => {
 test('generate with default settings', () => {
     const passwords = generate();
     expect(passwords.length).toBe(DEFAULT_SETTINGS.count);
-    for(const password in passwords) {
+    for(const password of passwords) {
         expect(validate(password)).toBeTruthy();
     }
 });
