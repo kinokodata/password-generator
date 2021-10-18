@@ -1,72 +1,87 @@
-import * as main from './password-generator';
+import {__RewireAPI__ as pwGenRewire, validate, generate} from './password-generator';
 
-const constrains1 = {
-    min: 8,
-    max: 8,
-    required: {
-        upperCaseLetter: true,
-        lowerCaseLetter: true,
-        alphabetLetter: false,
-        numericDigit: true,
-        alphanumericChar: false
-    },
-    symbols: {
-        chars: '-_',
-        required: true,
-        allowSpace: false
-    }
-};
+const getRandomUpperCaseLetter = pwGenRewire.__get__('getRandomUpperCaseLetter');
+const getRandomLowerCaseLetter = pwGenRewire.__get__('getRandomLowerCaseLetter');
+const getRandomNumber = pwGenRewire.__get__('getRandomNumber');
+const getRandomSymbol = pwGenRewire.__get__('getRandomSymbol');
 
-const constrains2 = {
-    min: 8,
-    max: 8,
-    required: {
-        upperCaseLetter: true,
-        lowerCaseLetter: true,
-        alphabetLetter: false,
-        numericDigit: true,
-        alphanumericChar: false
-    },
-    symbols: {
-        chars: '-_',
-        required: true,
-        allowSpace: false
-    }
-};
+const setSettings = pwGenRewire.__get__('setSettings');
+const sub = pwGenRewire.__get__('sub');
+const shuffle = pwGenRewire.__get__('shuffle');
 
-test('validate', () => {
-    main.setConstrains(constrains1);
-    expect(main.validate('1A3-56a')).toBeFalsy();
-    expect(main.validate('1A3-56ab')).toBeTruthy();
-    expect(main.validate('1A3-56abc')).toBeFalsy();
-    expect(main.validate('1A3-56AB')).toBeFalsy();
-    expect(main.validate('1A3456aB')).toBeFalsy();
-});
+const UPPER_CASE_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const LOWER_CASE_LETTERS = 'abcdefghijklmnopqrstuvwxyz';
+const NUMBERS = '0123456789';
 
 test('getRandomUpperCaseLetter', () => {
-    expect(main.getRandomUpperCaseLetter()).toEqual(expect.stringMatching(/[A-Z]/));
-    expect(main.getRandomUpperCaseLetter()).toEqual(expect.stringMatching(/[A-Z]/));
-    expect(main.getRandomUpperCaseLetter()).toEqual(expect.stringMatching(/[A-Z]/));
+    const except = 'ABCDFHIKLMVW';
+    setSettings({upperCaseLetters: {except: except}});
+    for(let i = 0; i < 10; i++) {
+        expect(getRandomUpperCaseLetter()).toEqual(expect.stringMatching(new RegExp('[' + sub(UPPER_CASE_LETTERS, except) + ']')));
+    }
 });
 
 test('getRandomLowerCaseLetter', () => {
-    expect(main.getRandomLowerCaseLetter()).toEqual(expect.stringMatching(/[a-z]/));
-    expect(main.getRandomLowerCaseLetter()).toEqual(expect.stringMatching(/[a-z]/));
-    expect(main.getRandomLowerCaseLetter()).toEqual(expect.stringMatching(/[a-z]/));
+    const except = 'asxdf';
+    setSettings({lowerCaseLetters: {except: except}});
+    for(let i = 0; i < 10; i++) {
+        expect(getRandomLowerCaseLetter()).toEqual(expect.stringMatching(new RegExp('[' + sub(LOWER_CASE_LETTERS, except) + ']')));
+    }
 });
 
-test('getRandomAlphabetLetter', () => {
-    expect(main.getRandomAlphabetLetter()).toEqual(expect.stringMatching(/[A-Za-z]/));
-    expect(main.getRandomAlphabetLetter()).toEqual(expect.stringMatching(/[A-Za-z]/));
-    expect(main.getRandomAlphabetLetter()).toEqual(expect.stringMatching(/[A-Za-z]/));
+test('getRandomNumber', () => {
+    const except = '0';
+    setSettings({numbers: {except: except}});
+    for(let i = 0; i < 10; i++) {
+        expect(getRandomNumber()).toEqual(expect.stringMatching(new RegExp('[' + sub(NUMBERS, except) + ']')));
+    }
+});
+
+test('getRandomSymbol', () => {
+    const available = '-+:';
+    setSettings({symbols: {available: available}});
+    for(let i = 0; i < 10; i++) {
+        expect(getRandomSymbol()).toEqual(expect.stringMatching(new RegExp('[' + available + ']')));
+    }
 });
 
 test('shuffle', () => {
     const str = 'hogehoge';
-    expect(main.shuffle(str)).not.toEqual(str);
-    expect(main.shuffle(str).length).toBe(str.length);
+    expect(shuffle(str)).not.toBe(str);
+    expect(shuffle(str).length).toBe(str.length);
 });
 
-test('generate', () => {
-    expect(main.validate(main.generate(constrains1))).toBeTruthy();
+test('sub', () => {
+    expect(sub('ABCDEFG', 'BDG')).toEqual('ACEF');
+    expect(sub('ABCDEFG', 'BDGH')).toEqual('ACEF');
+    expect(sub('ABCDEFG', 'BdG')).toEqual('ACDEF');
+    expect(sub('ABCDEFG', '')).toEqual('ABCDEFG');
+    expect(sub('ABCDEFG', '12IJ0')).toEqual('ABCDEFG');
+    expect(sub('', 'BdG')).toEqual('');
+});
+
+test('validate with default settings', () => {
+    expect(validate('ABCDEFGH')).toBeFalsy(); //0001
+    expect(validate('abcdefgh')).toBeFalsy(); //0010
+    expect(validate('abcdEFGH')).toBeFalsy(); //0011
+    expect(validate('23456722')).toBeFalsy(); //0100
+    expect(validate('234567aa')).toBeFalsy(); //0101
+    expect(validate('234567AA')).toBeFalsy(); //0110
+    expect(validate('234567aB')).toBeFalsy(); //0111
+    expect(validate('--------')).toBeFalsy(); //1000
+    expect(validate('-aaaaaaa')).toBeFalsy(); //1001
+    expect(validate('-AAAAABB')).toBeFalsy(); //1010
+    expect(validate('-aaaaaBB')).toBeFalsy(); //1011
+    expect(validate('-2345568')).toBeFalsy(); //1100
+    expect(validate('-aaa22bb')).toBeFalsy(); //1101
+    expect(validate('-AAA22BB')).toBeFalsy(); //1110
+    expect(validate('-AAA22aa')).toBeTruthy(); //1111
+    expect(validate('-AAA2a')).toBeFalsy(); //1111
+    expect(validate('-AAA22aabb')).toBeTruthy(); //1111
+    expect(validate('-AAA22aabb_')).toBeFalsy(); //1111
+});
+
+// Validatorが正しく動くことを保証した上で，作成したパスワードがvalidであることを確認する
+test('generate with default settings', () => {
+    expect(validate(generate())).toBeTruthy();
 });

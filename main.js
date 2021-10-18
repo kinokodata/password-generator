@@ -6,8 +6,8 @@ document.getElementById('copy-password-button').addEventListener('click', copyPa
 let password = '';
 
 function onSubmit() {
-    readConstrainsFromInput();
-    password = generate(constrains);
+    readSettingsFromInput();
+    password = generate(settings);
     document.getElementById("generated").innerText = password;
 }
 
@@ -24,46 +24,51 @@ function copyPassword() {
     textArea.remove();
 }
 
-const constrains = {
-        min: 8,
-        max: 0,
-        required: {
-            upperCaseLetter: true,
-            lowerCaseLetter: true,
-            alphabetLetter: false,
-            numericDigit: true,
-            alphanumericChar: false
-        },
-        symbols: {
-            chars: '',
-            required: true,
-            allowSpace: false
-        }
-    };
+const settings = {
+    min: 8,
+    max: 10,
+    upperCaseLetters: {
+        usage: 2,
+        except: 'IO'
+    },
+    lowerCaseLetters: {
+        usage: 2,
+        except: 'l'
+    },
+    numbers: {
+        usage: 2,
+        except: '10'
+    },
+    symbols: {
+        usage: 2,
+        available: '-_'
+    },
+    allowSpace: false
+};
 
-function readConstrainsFromInput() {
-    constrains.min = parseInt(document.getElementById("inputMin").value);
+function readSettingsFromInput() {
+    settings.min = parseInt(document.getElementById("inputMin").value);
     const inputMax = document.getElementById("inputMax").value;
-    if(!!inputMax && inputMax >= constrains.min) {
-        constrains.max = parseInt(document.getElementById("inputMax").value);
+    if(!!inputMax && inputMax >= settings.min) {
+        settings.max = parseInt(inputMax);
     } else {
-        constrains.max = constrains.min;
+        settings.max = settings.min;
     }
     const inputAvailableSymbols = document.getElementById("inputAvailableSymbols").value;
     if(!!inputAvailableSymbols) {
-        constrains.symbols.chars = inputAvailableSymbols;
+        settings.symbols.available = inputAvailableSymbols;
     } else {
-        constrains.symbols.chars = '';
+        settings.symbols.chars = '';
     }
 
-    constrains.required.upperCaseLetter = document.getElementById("inputRequiredUpperChar").checked;
-    constrains.required.lowerCaseLetter = document.getElementById("inputRequiredLowerChar").checked;
-    constrains.required.alphabetLetter = document.getElementById("inputRequiredAlphabet").checked;
-    constrains.required.numericDigit = document.getElementById("inputRequiredNumber").checked;
-    constrains.required.alphanumericChar = document.getElementById("inputRequiredChar").checked;
+    settings.required.upperCaseLetter = document.getElementById("inputRequiredUpperChar").checked;
+    settings.required.lowerCaseLetter = document.getElementById("inputRequiredLowerChar").checked;
+    settings.required.alphabetLetter = document.getElementById("inputRequiredAlphabet").checked;
+    settings.required.numericDigit = document.getElementById("inputRequiredNumber").checked;
+    settings.required.alphanumericChar = document.getElementById("inputRequiredChar").checked;
 
-    constrains.symbols.chars = document.getElementById("inputAvailableSymbols").value;
-    // constrains.symbols.allowSpace = document.getElementById("inputAllowSpace").checked;
-    constrains.symbols.required = document.getElementById("inputSymbolsRequired").checked;
-    console.log(constrains);
+    settings.symbols.chars = document.getElementById("inputAvailableSymbols").value;
+    // settings.symbols.allowSpace = document.getElementById("inputAllowSpace").checked;
+    settings.symbols.required = document.getElementById("inputSymbolsRequired").checked;
+    console.log(settings);
 }
