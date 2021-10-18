@@ -81,7 +81,10 @@ test('validate with default settings', () => {
     expect(validate('-AAA22aabb_')).toBeFalsy(); //1111
 });
 
-// Validatorが正しく動くことを保証した上で，作成したパスワードがvalidであることを確認する
+// Validatorが正しく動くことを保証した上で，作成したパスワードすべてがvalidであることを確認する
 test('generate with default settings', () => {
-    expect(validate(generate())).toBeTruthy();
+    const passwords = generate();
+    for(const password in passwords) {
+        expect(validate(password)).toBeTruthy();
+    }
 });
