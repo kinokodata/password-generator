@@ -61,4 +61,4 @@ const settings = {
 | usage | 2 | 0:unavailable 1:optional 2:required |
 | except | ※1 | Unavailable characters. |
 | available | -_ | Available symbol characters. |
-| allowSpace | false | When true, allows whitespace. |
+| allowSpace | false | When true, allows whitespace except beginning or end of password. |

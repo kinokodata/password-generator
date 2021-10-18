@@ -4,7 +4,7 @@ const LOWER_CASE_LETTERS = 'abcdefghijklmnopqrstuvwxyz';
 const NUMBERS = '0123456789';
 
 export const DEFAULT_SETTINGS = {
-    count: 10,
+    count: 100,
     min: 8,
     max: 10,
     upperCaseLetters: {
@@ -21,7 +21,7 @@ export const DEFAULT_SETTINGS = {
     },
     symbols: {
         usage: 2,
-        available: '-_'
+        available: '-_:+'
     },
     allowSpace: false
 };
@@ -96,24 +96,42 @@ export const generate = (settings) => {
     while(count < _settings.count) {
         const length = _settings.min + Math.floor(Math.random() * (_settings.max - _settings.min + 1));
         let password = "";
-        // FixMe: 場合分け
-        if (_settings.upperCaseLetter.usage === 2) {
+
+        // 必須
+        if (_settings.upperCaseLetters.usage === 2) {
             password += getRandomUpperCaseLetter();
         }
-        if (_settings.required.lowerCaseLetter) {
+        if (_settings.lowerCaseLetters.usage === 2) {
             password += getRandomLowerCaseLetter();
         }
-        if (_settings.required.alphabetLetter) {
-            password += getRandomUpperCaseLetter();
-        }
-        if (_settings.required.numericDigit) {
+        if (_settings.numbers.usage === 2) {
             password += getRandomNumber();
         }
-        if (_settings.symbols.required) {
+        if (_settings.symbols.usage === 2) {
             password += getRandomSymbol();
         }
+
+        // 生成器のランダマイズ
+        // 記号の出現頻度を少し下げるために，記号以外の生成器を配列に多めに入れる
+        const generators = [];
+        if(_settings.upperCaseLetters.usage > 0) {
+            generators.push(getRandomUpperCaseLetter);
+            generators.push(getRandomUpperCaseLetter);
+        }
+        if(_settings.lowerCaseLetters.usage > 0) {
+            generators.push(getRandomLowerCaseLetter);
+            generators.push(getRandomLowerCaseLetter);
+        }
+        if(_settings.numbers.usage > 0) {
+            generators.push(getRandomNumber);
+            generators.push(getRandomNumber);
+        }
+        if(_settings.symbols.usage > 0) {
+            generators.push(getRandomSymbol);
+        }
+
         while (password.length < length) {
-            password += getRandomLowerCaseLetter();
+            password += generators[Math.floor(Math.random() * generators.length)]();
         }
         password = shuffle(password);
         array.push(password);
@@ -148,7 +166,7 @@ const getRandomNumber = () => {
 
 const getRandomSymbol = () => {
     if(_settings.symbols.available.length > 0) {
-        return _settings.symbols.available.charAt(Math.floor(Math.random()) * _settings.symbols.available.length);
+        return _settings.symbols.available.charAt(Math.floor(Math.random() * _settings.symbols.available.length));
     } else {
         return '';
     }
@@ -158,7 +176,6 @@ const shuffle = (str) => {
     return str.split('').sort(() => 0.5 - Math.random()).join('');
 }
 
-// ToDo: もっとしっかり書く
 export const validate = (str, settings) => {
     if(settings) {
         setSettings(settings);
@@ -190,7 +207,38 @@ export const validate = (str, settings) => {
             return false;
         }
     }
-    // ToDo: 使って良い文字以外が入ってないかの検出
 
-    return true;
+    // 使用不可チェック
+    if(_settings.upperCaseLetters.usage === 0 && /[A-Z]/.test(str)) {
+        return false;
+    }
+    if(_settings.lowerCaseLetters.usage === 0 && /[a-z]/.test(str)) {
+        return false;
+    }
+    if(_settings.numbers.usage === 0 && /[0-9]/.test(str)) {
+        return false;
+    }
+    if(_settings.symbols.usage === 0 && /[^A-Za-z0-9 ]/.test(str)) {
+        return false;
+    }
+    if(!_settings.allowSpace && / /.test(str)) {
+        return false;
+    }
+
+    // 使用不可文字チェック
+    if(new RegExp('[' + _settings.upperCaseLetters.except + ']').test(str)) {
+        return false;
+    }
+    if(new RegExp('[' + _settings.lowerCaseLetters.except + ']').test(str)) {
+        return false;
+    }
+    if(new RegExp('[' + _settings.numbers.except + ']').test(str)) {
+        return false;
+    }
+    if(new RegExp('[^' + _settings.symbols.available + 'A-Za-z0-9 ]').test(str)) {
+        return false;
+    }
+
+    // どんな場合でもbegin or end にspaceは不可
+    return !/^ .+$/.test(str) && !/^.+ $/.test(str);
 }
