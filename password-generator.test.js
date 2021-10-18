@@ -1,4 +1,4 @@
-import {__RewireAPI__ as pwGenRewire, validate, generate} from './password-generator';
+import {__RewireAPI__ as pwGenRewire, validate, generate, DEFAULT_SETTINGS} from './password-generator';
 
 const getRandomUpperCaseLetter = pwGenRewire.__get__('getRandomUpperCaseLetter');
 const getRandomLowerCaseLetter = pwGenRewire.__get__('getRandomLowerCaseLetter');
@@ -84,6 +84,7 @@ test('validate with default settings', () => {
 // Validatorが正しく動くことを保証した上で，作成したパスワードすべてがvalidであることを確認する
 test('generate with default settings', () => {
     const passwords = generate();
+    expect(passwords.length).toBe(DEFAULT_SETTINGS.count);
     for(const password in passwords) {
         expect(validate(password)).toBeTruthy();
     }
