@@ -55,6 +55,7 @@ const settings = {
 
 | property | default | description |
 | :---: | :---: | :--- |
+| count | 10 | Number of created passwords. |
 | min | 8 | Minimum length of password. |
 | max | 10 | Maximum length of password. When null or less than min, Set to the same value of min. |
 | usage | 2 | 0:unavailable 1:optional 2:required |

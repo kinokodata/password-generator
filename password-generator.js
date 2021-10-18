@@ -3,7 +3,7 @@ const UPPER_CASE_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const LOWER_CASE_LETTERS = 'abcdefghijklmnopqrstuvwxyz';
 const NUMBERS = '0123456789';
 
-const DEFAULT_SETTINGS = {
+export const DEFAULT_SETTINGS = {
     count: 10,
     min: 8,
     max: 10,
